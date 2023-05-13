@@ -22,12 +22,14 @@ Route::post("/register", [AuthenticationController::class, "register"]);
 
 //  Authenticated endpoints
 Route::group(['middleware' => ['auth:api']], function() {
+    //  Teacher
     Route::group(['middleware' => [CheckRoleMiddleware::class . ':teacher']], function() {
         Route::get('/teachers', function () {
             return "Hello teacher";
         });
     });
 
+    //  Student
     Route::group(['middleware' => [CheckRoleMiddleware::class . ':student']], function() {
         Route::get('/students', function () {
             return "Hello student";

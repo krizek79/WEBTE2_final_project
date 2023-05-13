@@ -30,7 +30,9 @@ class AuthenticationService
         $token=$user->createToken('authToken')->accessToken;
 
         return [
-            'token'=>$token
+            'token'=> $token,
+            'user' => $user->email,
+            'role' => $user->role
         ];
     }
 
