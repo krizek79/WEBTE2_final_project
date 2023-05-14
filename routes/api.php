@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Middleware\CheckRoleMiddleware;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
