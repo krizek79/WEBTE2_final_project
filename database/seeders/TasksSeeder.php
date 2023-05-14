@@ -61,7 +61,8 @@ class TasksSeeder extends Seeder
                     'solution' => $obj['solution'],
                     'image' => $obj['image'],
                     'file_name' => $fileName, // Save the file name in the database
-                    'points' => 1
+                    'points' => 1,
+                    'is_accessible' => true,
                 ]);
             }
         }

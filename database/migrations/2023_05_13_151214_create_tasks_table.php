@@ -18,8 +18,9 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->integer('points');
             $table->string('file_name');
-            $table->timestamp('accessible_from')->nullable();;
-            $table->timestamp('accessible_to')->nullable();;
+            $table->boolean('is_accessible');
+            $table->timestamp('accessible_from')->nullable();
+            $table->timestamp('accessible_to')->nullable();
         });
     }
 
