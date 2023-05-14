@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Middleware\CheckRoleMiddleware;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\GeneratedTaskController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,3 +37,8 @@ Route::group(['middleware' => ['auth:api']], function() {
         });
     });
 });
+
+Route::get('/files', [TaskController::class, 'getFileNames']);
+Route::get('/task', [TaskController::class, 'getTask']);
+Route::get('/tasks', [TaskController::class, 'getTasks']);
+Route::get('/student/tasks', [GeneratedTaskController::class, 'getTasksByStudent']);
