@@ -31,7 +31,9 @@ class AuthenticationService
 
         return [
             'token'=> $token,
-            'user' => $user->email,
+            'email' => $user->email,
+            'firstName' => $user->first_name,
+            'lastName' => $user->last_name,
             'role' => $user->role
         ];
     }
