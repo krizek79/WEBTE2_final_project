@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use App\Models\GeneratedTask;
 
 class GeneratedTaskController extends Controller
 {
-    public function getTasksByStudent()
+    public function getTasksByStudent(): JsonResponse
     {
         $student = Auth::user();
 

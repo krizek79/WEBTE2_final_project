@@ -18,6 +18,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'email',
+        'first_name',
+        'last_name',
         'password',
         'role'
     ];
@@ -35,6 +37,8 @@ class User extends Authenticatable
     {
         $user = new self;
         $user->email = $data["email"];
+        $user->first_name = $data["first_name"];
+        $user->last_name = $data["last_name"];
         $user->password = bcrypt($data['password']);
         $user->role = $data['role'] ?? 'student';
 
