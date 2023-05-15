@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\AuthenticationController;
+use App\Http\Middleware\CheckRoleMiddleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\GeneratedTaskController;
@@ -16,8 +17,25 @@ use App\Http\Controllers\GeneratedTaskController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+//  Authentication
+Route::post("/authenticate", [AuthenticationController::class, "authenticate"]);
+Route::post("/register", [AuthenticationController::class, "register"]);
+
+//  Authenticated endpoints
+Route::group(['middleware' => ['auth:api']], function() {
+    //  Teacher
+    Route::group(['middleware' => [CheckRoleMiddleware::class . ':teacher']], function() {
+        Route::get('/teachers', function () {
+            return "Hello teacher";
+        });
+    });
+
+    //  Student
+    Route::group(['middleware' => [CheckRoleMiddleware::class . ':student']], function() {
+        Route::get('/students', function () {
+            return "Hello student";
+        });
+    });
 });
 
 Route::get('/files', [TaskController::class, 'getFileNames']);
