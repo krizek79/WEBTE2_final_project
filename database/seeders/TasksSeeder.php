@@ -4,7 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Task;
-use Illuminate\Support\Facades\File;
+use App\Models\File;
+use Illuminate\Support\Facades\File as Fs;
 
 class TasksSeeder extends Seeder
 {
@@ -16,7 +17,7 @@ class TasksSeeder extends Seeder
         $folderPath = database_path('data');
 
         // Get all .tex files in the folder
-        $files = File::files($folderPath, true);
+        $files = Fs::files($folderPath, true);
         $texFiles = array_filter($files, function ($file) {
             return pathinfo($file, PATHINFO_EXTENSION) === 'tex';
         });
@@ -24,6 +25,13 @@ class TasksSeeder extends Seeder
         foreach ($texFiles as $file) {
             // Get the file name
             $fileName = pathinfo($file, PATHINFO_FILENAME);
+
+            // Create file entry in 'files' table and get the id
+            $fileEntry = File::create([
+                'file_name' => $fileName,
+                'points' => 1,
+                'is_accessible' => true,
+            ]);
 
             // Read the file
             $data = file_get_contents($file);
@@ -54,15 +62,13 @@ class TasksSeeder extends Seeder
                 }, $tasks[1], $solutions[1]);
             }
 
-            // Insert tasks, solutions, image paths, and file name into the database
+            // Insert tasks, solutions, image paths, and file id into the database
             foreach ($tasks_solutions_images as $obj) {
                 Task::create([
                     'task' => $obj['task'],
                     'solution' => $obj['solution'],
                     'image' => $obj['image'],
-                    'file_name' => $fileName, // Save the file name in the database
-                    'points' => 1,
-                    'is_accessible' => true,
+                    'file_id' => $fileEntry->id, // Save the file id in the database
                 ]);
             }
         }

@@ -20,16 +20,11 @@ class Task extends Model
         'task',
         'solution',
         'image',
-        'points',
-        'file_name',
+        'file_id',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'points' => 'integer',
-    ];
+    public function file()
+    {
+        return $this->belongsTo(File::class);
+    }
 }

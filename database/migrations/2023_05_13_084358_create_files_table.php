@@ -11,16 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table->string('task', 4095);
-            $table->string('solution', 4095);
-            $table->string('image')->nullable();
-            $table->unsignedBigInteger('file_id');
-
-            $table->foreign('file_id')->references('id')->on('files')->onDelete('cascade');
+            $table->string('file_name');
+            $table->integer('points');
+            $table->boolean('is_accessible');
+            $table->timestamp('accessible_from')->nullable();
+            $table->timestamp('accessible_to')->nullable();
         });
-
     }
 
     /**
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('files');
     }
 };
