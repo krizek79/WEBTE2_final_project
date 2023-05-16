@@ -39,8 +39,19 @@ Route::group(['middleware' => ['auth:api']], function() {
     });
 });
 
-Route::get('/files', [FileController::class, 'getFileNames']);
+Route::get('/files', [FileController::class, 'index']);
+Route::get('/files/accessible', [FileController::class, 'getAccessibleFiles']);
+
 /*Route::get('/task', [TaskController::class, 'getTask']);*/
+
 Route::get('/tasks', [TaskController::class, 'getAllTasks']);
 Route::get('/tasks/generate', [TaskController::class, 'generateTasks']);
-Route::get('/student/tasks', [GeneratedTaskController::class, 'getTasksByStudent']);
+
+Route::get('/generatedtasks', [GeneratedTaskController::class, 'getTasksByStudent']);
+Route::patch('/generatedtasks/{taskId}/answer', [GeneratedTaskController::class, 'updateStudentAnswer']);
+
+Route::get('/generatedtasks/results', [GeneratedTaskController::class, 'getResults']);
+
+Route::patch('/files/{fileName}/points', [FileController::class, 'updateFilePoints']);
+Route::patch('/files/{fileName}/access', [FileController::class, 'updateAccessibility']);
+Route::patch('/files/{fileName}/accesstime', [FileController::class, 'updateAccessibilityTime']);

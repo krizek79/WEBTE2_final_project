@@ -3,49 +3,47 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use App\Models\GeneratedTask;
+use App\Services\GeneratedTaskService;
+
 
 class GeneratedTaskController extends Controller
 {
-    public function getTasksByStudent()
+    protected GeneratedTaskService $generatedTaskService;
+
+    public function __construct(GeneratedTaskService $generatedTaskService)
     {
-        $student = Auth::user(); 
+        $this->generatedTaskService = $generatedTaskService;
+    }
 
-        $generatedTasks = GeneratedTask::where('student_id', 1/*$student->id*/)
-                                ->with(['task.file'])
-                                ->get();
+    /**
+     * @throws CustomException
+     */
+    public function getTasksByStudent(): JsonResponse
+    {
+        $result = $this->generatedTaskService->getTasksByStudent();
+        return response()->json($result, 200);
+    }
 
-        if ($generatedTasks->isEmpty()) {
-            return response()->json(['error' => 'No generated tasks found for this student'], 404);
-        }
+    /**
+     * @throws CustomException
+     */
+    public function updateStudentAnswer(Request $request, $taskId): JsonResponse
+    {
+        $result = $this->generatedTaskService->updateStudentAnswer($request, $taskId);
+        return response()->json($result, 200);
+    }
 
-        return response()->json($generatedTasks->map(function ($generatedTask) {
-            return [
-                'id' => $generatedTask->id,
-                'task_id' => $generatedTask->task->id,
-                'task' => $generatedTask->task->task,
-                'solution' => $generatedTask->task->solution,
-                'student_answer' => $generatedTask->student_answer,
-                'correctness' => $generatedTask->correctness,
-                'points' => $generatedTask->task->file->points, 
-                'file_name' => $generatedTask->task->file->file_name,
-                /*'task' => [
-                    'id' => $generatedTask->task->id,
-                    'task' => $generatedTask->task->task,
-                    'solution' => $generatedTask->task->solution,
-                    'image' => $generatedTask->task->image,
-                    'points' => $generatedTask->task->points,
-                    'file' => [
-                        'id' => $generatedTask->task->file->id,
-                        'file_name' => $generatedTask->task->file->file_name,
-                        'is_accessible' => $generatedTask->task->file->is_accessible,
-                        'accessible_from' => $generatedTask->task->file->accessible_from,
-                        'accessible_to' => $generatedTask->task->file->accessible_to,
-                    ],
-                ],*/
-            ];
-        }));
+
+    /**
+     * @throws CustomException
+     */
+    public function getResults(): JsonResponse
+    {
+        $result = $this->generatedTaskService->getResults();
+        return response()->json($result, 200);
     }
 
 }

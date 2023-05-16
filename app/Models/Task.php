@@ -27,4 +27,9 @@ class Task extends Model
     {
         return $this->belongsTo(File::class);
     }
+
+    public function generatedTasks()
+    {
+        return $this->hasMany(GeneratedTask::class, 'task_id');
+    }
 }

@@ -41,4 +41,9 @@ class User extends Authenticatable
         $user->save();
         return $user;
     }
+
+    public function generatedTasks()
+    {
+        return $this->hasMany(GeneratedTask::class, 'student_id');
+    }
 }
