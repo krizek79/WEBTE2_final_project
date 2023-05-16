@@ -106,7 +106,8 @@ class GeneratedTaskService
 
             $results[] = [
                 'student_id' => $student->student_id,
-                'student_name' => $student->student->email, // Assuming the student model has a name field
+                'first_name' => $student->student->first_name, // Assuming the student model has a name field
+                'last_name' => $student->student->first_name,
                 'total_tasks' => $totalTasks,
                 'solved_tasks' => $solvedTasks,
                 'total_points' => $totalPoints,

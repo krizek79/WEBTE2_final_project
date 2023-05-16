@@ -14,16 +14,16 @@ class AuthenticationService
     /**
      * @throws CustomException
      */
-    public function authenticate(Request $authRequest): array
+    public function authenticate(Request $request): array
     {
-        $authRequest->validate([
+        $request->validate([
             'email' => 'required',
             'password' => 'required'
         ]);
 
-        $user = User::where('email',$authRequest->email)->first();
+        $user = User::where('email',$request->email)->first();
 
-        if (!$user || !Hash::check($authRequest->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             throw new CustomException("Wrong credentials", 401);
         }
 
@@ -31,7 +31,9 @@ class AuthenticationService
 
         return [
             'token'=> $token,
-            'user' => $user->email,
+            'email' => $user->email,
+            'firstName' => $user->first_name,
+            'lastName' => $user->last_name,
             'role' => $user->role
         ];
     }
@@ -39,27 +41,30 @@ class AuthenticationService
     /**
      * @throws CustomException
      */
-    public function register(Request $registrationRequest): array
+    public function register(Request $request): array
     {
-        if (is_null($registrationRequest->email) || is_null($registrationRequest->password)
-            || is_null($registrationRequest->matchingPassword || is_null($registrationRequest->role))
+        if (is_null($request->email) || is_null($request->password)
+            || is_null($request->firstName) || is_null($request->lastName)
+            || is_null($request->matchingPassword || is_null($request->role))
         ) {
             throw new CustomException("Missing parameter(s)", 400);
         }
 
-        $userExists = User::where('email', $registrationRequest->email)->exists();
+        $userExists = User::where('email', $request->email)->exists();
         if ($userExists) {
             throw new CustomException("User with this email already exists", 400);
         }
 
-        if ($registrationRequest->password != $registrationRequest->matchingPassword) {
+        if ($request->password != $request->matchingPassword) {
             throw new CustomException("Password and matching password do not match", 400);
         }
 
         $user = User::create([
-            'email' => $registrationRequest->email,
-            'password' => $registrationRequest->password,
-            'role' => $registrationRequest->role
+            'email' => $request->email,
+            'first_name' => $request->firstName,
+            'last_name' => $request->lastName,
+            'password' => $request->password,
+            'role' => $request->role
         ]);
 
         return [
