@@ -40,24 +40,24 @@ class FileController extends Controller
     /**
      * @throws CustomException
      */
-    public function updateFilePoints(Request $request, $fileName): JsonResponse
+    public function updateFilePoints(Request $request): JsonResponse
     {
-        $result = $this->fileService->updateFilePoints($request, $fileName);
+        $result = $this->fileService->updateFilePoints($request);
         return response()->json($result);
     }
 
-    public function updateAccessibility(Request $request, $fileName)
+    public function updateAccessibility(Request $request)
     {
-        $result = $this->fileService->updateAccessibility($request, $fileName);
+        $result = $this->fileService->updateAccessibility($request);
         return response()->json($result, 200);
     }
 
     /**
      * @throws CustomException
      */
-    public function updateAccessibilityTime(Request $request, $fileName): JsonResponse
+    public function updateAccessibilityTime(Request $request): JsonResponse
     {
-        $result = $this->fileService->updateAccessibilityTime($request, $fileName);
+        $result = $this->fileService->updateAccessibilityTime($request);
         return response()->json($result);
     }
 

@@ -19,51 +19,27 @@ class TaskController extends Controller
         $this->taskService = $taskService;
     }
 
-
     /**
-     * Display a random accessible task.
-     *
-     * @return \Illuminate\Http\Response
+     * @throws CustomException
      */
-    /*public function getTask()
-    {
-        $now = Carbon::now();
-
-        // Fetch a random task associated with an accessible file
-        $task = Task::whereHas('file', function($query) use ($now) {
-            $query->where('is_accessible', true)
-                ->where(function($query) use ($now) {
-                    $query->where(function($query) use ($now) {
-                        $query->where('accessible_from', '<=', $now)
-                            ->where('accessible_to', '>=', $now);
-                    })
-                    ->orWhereNull('accessible_from')
-                    ->orWhereNull('accessible_to');
-                });
-        })
-        ->inRandomOrder()
-        ->first();
-
-        if (!$task) {
-            return response()->json(['error' => 'No accessible task found'], 404);
-        }
-
-        return response()->json([
-            'id' => $task->id,
-            'task' => $task->task,
-            'solution' => $task->solution,
-            'image' => $task->image,
-            'points' => $task->file->points,
-            'file_name' => $task->file->file_name
-        ]);
-    }*/
-
     public function getAllTasks(): JsonResponse
     {
         $result = $this->taskService->getAllTasks();
         return response()->json($result);
     }
 
+    /**
+     * @throws CustomException
+     */
+    public function getTaskById($id): JsonResponse
+    {
+        $result = $this->taskService->getTaskById($id);
+        return response()->json($result);
+    }
+
+    /**
+     * @throws CustomException
+     */
     public function generateTasks(Request $request)
     {
         $result = $this->taskService->generateTasks($request);

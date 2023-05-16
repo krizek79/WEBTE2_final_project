@@ -31,6 +31,29 @@ class TaskService
     }
 
     /**
+     * @param int $taskId
+     * @return array
+     * @throws CustomException
+     */
+    public function getTaskById($taskId)
+    {
+        $task = Task::with('file')->find($taskId);
+
+        if (!$task) {
+            throw new CustomException('Task not found');
+        }
+
+        return [
+            'id' => $task->id,
+            'task' => $task->task,
+            //'solution' => $task->solution,
+            'image' => $task->image,
+            'points' => $task->file->points,
+            'file_name' => $task->file->file_name
+        ];
+    }
+
+    /**
      * @throws CustomException
      */
     public function generateTasks(Request $request)

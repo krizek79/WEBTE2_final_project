@@ -40,17 +40,18 @@ class FileService
     /**
      * @throws CustomException
      */
-    public function updateFilePoints(Request $request, $fileName)
+    public function updateFilePoints(Request $request)
     {
-        $file = File::where('file_name', $fileName)->first();
+        $validatedData = $request->validate([
+            'file_id' => 'required|integer',
+            'points' => 'required|integer'
+        ]);
+        
+        $file = File::where('id', $validatedData['file_id'])->first();
 
         if (!$file) {
             throw new CustomException("No files found", 404);
         }
-
-        $validatedData = $request->validate([
-            'points' => 'required|integer'
-        ]);
 
         $file->points = $validatedData['points'];
         $file->save();
@@ -61,13 +62,14 @@ class FileService
     /**
      * @throws CustomException
      */
-    public function updateAccessibility(Request $request, $fileName)
+    public function updateAccessibility(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
+            'file_id' => 'required|integer',
             'is_accessible' => 'required|boolean',
         ]);
 
-        $file = File::where('file_name', $fileName)->first();
+        $file = File::where('id', $validatedData['file_id'])->first();
 
         if (!$file) {
             throw new CustomException("No file found with the specified file name", 404);
@@ -83,18 +85,19 @@ class FileService
     /**
      * @throws CustomException
      */
-    public function updateAccessibilityTime(Request $request, $fileName)
+    public function updateAccessibilityTime(Request $request)
     {
-        $file = File::where('file_name', $fileName)->first();
+        $validatedData = $request->validate([
+            'file_id' => 'required|integer',
+            'accessible_from' => 'date|nullable',
+            'accessible_to' => 'date|nullable',
+        ]);
+
+        $file = File::where('id', $validatedData['file_id'])->first();
 
         if (!$file) {
             throw new CustomException("File not found", 404);
         }
-
-        $request->validate([
-            'accessible_from' => 'date|nullable',
-            'accessible_to' => 'date|nullable',
-        ]);
 
         $file->accessible_from = $request->get('accessible_from');
         $file->accessible_to = $request->get('accessible_to');

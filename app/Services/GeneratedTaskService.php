@@ -27,21 +27,21 @@ class GeneratedTaskService
     /**
      * @throws CustomException
      */
-    public function getTasksByStudent()
+    public function getTasksByStudent($id)
     {
-        //$student = Auth::user();  
+        //$studentId = $request->get('student_id');
 
-        $generatedTasks = GeneratedTask::where('student_id', 1 /*$student->id*/)
+        $generatedTasks = GeneratedTask::where('student_id', $id)
                                 ->with(['task.file'])
                                 ->get();
 
         if ($generatedTasks->isEmpty()) {
             throw new CustomException("No generated tasks found for this student", 404);
         }
-
+        
         return ($generatedTasks->map(function ($generatedTask) {
             return [
-                'id' => $generatedTask->id,
+                //'id' => $generatedTask->id,
                 'task_id' => $generatedTask->task->id,
                 'task' => $generatedTask->task->task,
                 'solution' => $generatedTask->task->solution,
@@ -53,19 +53,43 @@ class GeneratedTaskService
         }));
     }
 
+    public function getExampleList()
+    {
+        
+        $studentId = 1;//Auth::user();
+
+        
+        $generatedTasks = GeneratedTask::where('student_id', $studentId)
+                                ->with(['task.file'])
+                                ->get();
+
+        if ($generatedTasks->isEmpty()) {
+            throw new CustomException("No generated tasks found for this student", 404);
+        }
+
+        return ($generatedTasks->map(function ($generatedTask) {
+            return [
+                'id' => $generatedTask->task_id,
+                'task' => $generatedTask->task->task,
+                'file_name' => $generatedTask->task->file->file_name
+            ];
+        }));
+    }
+
     /**
      * @throws CustomException
      */
-    public function updateStudentAnswer(Request $request, $taskId)
+    public function updateStudentAnswer(Request $request)
     {
-        //$student = $request->user();
+        $studentId = 1; //$request->user();
 
         $request->validate([
+            'task_id' => 'required|integer',
             'student_answer' => 'required|string',
         ]);
 
-        $generatedTask = GeneratedTask::where('student_id',1/*$student->id*/)
-                                    ->where('task_id', $taskId)
+        $generatedTask = GeneratedTask::where('student_id', $studentId)
+                                    ->where('task_id', $request->task_id)
                                     ->first();
 
         if (!$generatedTask) {
@@ -78,13 +102,20 @@ class GeneratedTaskService
 
         $generatedTask->save();
 
+        $results[] = [
+            'student_id' => $studentId,
+            'task_id' => $request->task_id, // Assuming the student model has a name field
+            'student_answer' => $request->student_answer,
+            'correctness' => $generatedTask->correctness,
+        ];
+
         return $generatedTask;
     }
 
     /**
      * @throws CustomException
      */
-    public function getResults()
+    public function getStudentsResults()
     {
         $students = GeneratedTask::select('student_id')
                         ->with('student', 'task.file')
@@ -107,7 +138,7 @@ class GeneratedTaskService
             $results[] = [
                 'student_id' => $student->student_id,
                 'first_name' => $student->student->first_name, // Assuming the student model has a name field
-                'last_name' => $student->student->first_name,
+                'last_name' => $student->student->last_name,
                 'total_tasks' => $totalTasks,
                 'solved_tasks' => $solvedTasks,
                 'total_points' => $totalPoints,

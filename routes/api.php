@@ -39,19 +39,34 @@ Route::group(['middleware' => ['auth:api']], function() {
     });
 });
 
+//Return all files in database
 Route::get('/files', [FileController::class, 'index']);
+
+//Return files that are accessible to the student
 Route::get('/files/accessible', [FileController::class, 'getAccessibleFiles']);
 
-/*Route::get('/task', [TaskController::class, 'getTask']);*/
-
+//Return all tasks in database
 Route::get('/tasks', [TaskController::class, 'getAllTasks']);
+
+//Generates and returns for the student tasks that are accessible to him and at the same time adds a record to the table generated_tasks
 Route::get('/tasks/generate', [TaskController::class, 'generateTasks']);
 
-Route::get('/generatedtasks', [GeneratedTaskController::class, 'getTasksByStudent']);
-Route::patch('/generatedtasks/{taskId}/answer', [GeneratedTaskController::class, 'updateStudentAnswer']);
+//Return task by id
+Route::get('/tasks/{id}', [TaskController::class, 'getTaskById']);
 
-Route::get('/generatedtasks/results', [GeneratedTaskController::class, 'getResults']);
 
-Route::patch('/files/{fileName}/points', [FileController::class, 'updateFilePoints']);
+//Return list of student's tasks for "example list", logged in student
+Route::get('/generatedtasks/examplelist', [GeneratedTaskController::class, 'getExampleList']);
+
+//Return data for teacher's table
+Route::get('/generatedtasks/results', [GeneratedTaskController::class, 'getStudentsResults']);
+
+//Return list of student's tasks by student id, FOR TEACHER with solutions and student answers
+Route::get('/generatedtasks/{id}', [GeneratedTaskController::class, 'getTasksByStudent']);
+
+//Saves and checks the student's answer
+Route::patch('/generatedtasks/answer', [GeneratedTaskController::class, 'updateStudentAnswer']);
+
+Route::patch('/files/points', [FileController::class, 'updateFilePoints']);
 Route::patch('/files/{fileName}/access', [FileController::class, 'updateAccessibility']);
 Route::patch('/files/{fileName}/accesstime', [FileController::class, 'updateAccessibilityTime']);

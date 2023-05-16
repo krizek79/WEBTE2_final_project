@@ -21,18 +21,27 @@ class GeneratedTaskController extends Controller
     /**
      * @throws CustomException
      */
-    public function getTasksByStudent(): JsonResponse
+    public function getTasksByStudent($id): JsonResponse
     {
-        $result = $this->generatedTaskService->getTasksByStudent();
+        $result = $this->generatedTaskService->getTasksByStudent($id);
         return response()->json($result, 200);
     }
 
     /**
      * @throws CustomException
      */
-    public function updateStudentAnswer(Request $request, $taskId): JsonResponse
+    public function updateStudentAnswer(Request $request): JsonResponse
     {
-        $result = $this->generatedTaskService->updateStudentAnswer($request, $taskId);
+        $result = $this->generatedTaskService->updateStudentAnswer($request);
+        return response()->json($result, 200);
+    }
+
+    /**
+     * @throws CustomException
+     */
+    public function getExampleList(): JsonResponse
+    {
+        $result = $this->generatedTaskService->getExampleList();
         return response()->json($result, 200);
     }
 
@@ -40,9 +49,9 @@ class GeneratedTaskController extends Controller
     /**
      * @throws CustomException
      */
-    public function getResults(): JsonResponse
+    public function getStudentsResults(): JsonResponse
     {
-        $result = $this->generatedTaskService->getResults();
+        $result = $this->generatedTaskService->getStudentsResults();
         return response()->json($result, 200);
     }
 
