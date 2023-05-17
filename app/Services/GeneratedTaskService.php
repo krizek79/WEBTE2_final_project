@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\File;
 use App\Models\GeneratedTask;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GeneratedTaskService
 {
@@ -14,23 +15,8 @@ class GeneratedTaskService
     /**
      * @throws CustomException
      */
-    public function getFiles()
-    {
-        $files = File::select('id', 'file_name')->distinct()->get();
-
-        if ($files->isEmpty()) {
-            throw new CustomException("No files found", 404);
-        }
-        return $files;
-    }
-
-    /**
-     * @throws CustomException
-     */
     public function getTasksByStudent($id)
     {
-        //$studentId = $request->get('student_id');
-
         $generatedTasks = GeneratedTask::where('student_id', $id)
                                 ->with(['task.file'])
                                 ->get();
@@ -53,12 +39,10 @@ class GeneratedTaskService
         }));
     }
 
-    public function getExampleList()
+    public function getExampleList($request)
     {
-        
-        $studentId = 1;//Auth::user();
+        $studentId = $request->user()->id;
 
-        
         $generatedTasks = GeneratedTask::where('student_id', $studentId)
                                 ->with(['task.file'])
                                 ->get();
@@ -81,7 +65,8 @@ class GeneratedTaskService
      */
     public function updateStudentAnswer(Request $request, $id)
     {
-        $studentId = 1; //$request->user();
+        //$studentId = 1; //$request->user();  
+        $studentId = $request->user()->id;
 
         $request->validate([
             'student_answer' => 'required|string',

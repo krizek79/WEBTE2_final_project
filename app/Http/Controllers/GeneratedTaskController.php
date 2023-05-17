@@ -39,9 +39,9 @@ class GeneratedTaskController extends Controller
     /**
      * @throws CustomException
      */
-    public function getExampleList(): JsonResponse
+    public function getExampleList(Request $request): JsonResponse
     {
-        $result = $this->generatedTaskService->getExampleList();
+        $result = $this->generatedTaskService->getExampleList($request);
         return response()->json($result, 200);
     }
 

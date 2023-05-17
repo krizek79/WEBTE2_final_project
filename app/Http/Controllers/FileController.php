@@ -46,28 +46,4 @@ class FileController extends Controller
         return response()->json($result);
     }
 
-    /**
-     * @throws CustomException
-     */
-    public function updateFilePoints(Request $request): JsonResponse
-    {
-        $result = $this->fileService->updateFilePoints($request);
-        return response()->json($result);
-    }
-
-    public function updateAccessibility(Request $request)
-    {
-        $result = $this->fileService->updateAccessibility($request);
-        return response()->json($result, 200);
-    }
-
-    /**
-     * @throws CustomException
-     */
-    public function updateAccessibilityTime(Request $request): JsonResponse
-    {
-        $result = $this->fileService->updateAccessibilityTime($request);
-        return response()->json($result);
-    }
-
 }

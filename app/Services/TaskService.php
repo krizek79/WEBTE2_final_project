@@ -46,7 +46,6 @@ class TaskService
         return [
             'id' => $task->id,
             'task' => $task->task,
-            //'solution' => $task->solution,
             'image' => $task->image,
             'points' => $task->file->points,
             'file_name' => $task->file->file_name
@@ -84,7 +83,10 @@ class TaskService
                     });
             });
 
-            $generatedTaskIds = GeneratedTask::where('student_id', 1/*$student->id*/)->pluck('task_id')->toArray();
+            $studentId = $request->user()->id;
+            $studentId = 1;
+
+            $generatedTaskIds = GeneratedTask::where('student_id', $studentId)->pluck('task_id')->toArray();
 
             $tasksQuery = $tasksQuery->whereNotIn('id', $generatedTaskIds);
 
@@ -95,7 +97,7 @@ class TaskService
             // Create a new GeneratedTask for each task and associate it with the current student
             foreach ($tasks as $task) {
                 $generatedTask = new GeneratedTask;
-                $generatedTask->student_id = 1/*$student->id*/;
+                $generatedTask->student_id = $studentId;
                 $generatedTask->task_id = $task->id;
                 $generatedTask->correctness = 'NOT_EVALUATED';
                 $generatedTask->save();
@@ -113,13 +115,10 @@ class TaskService
             return [
                 'id' => $task->id,
                 'task' => $task->task,
-                //'solution' => $task->solution,
                 'image' => $task->image,
                 'points' => $task->file->points,
                 'file_name' => $task->file->file_name
             ];
         }));
     }
-
-
 }
