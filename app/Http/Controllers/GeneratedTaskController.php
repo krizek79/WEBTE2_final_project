@@ -30,9 +30,9 @@ class GeneratedTaskController extends Controller
     /**
      * @throws CustomException
      */
-    public function updateStudentAnswer(Request $request): JsonResponse
+    public function updateStudentAnswer(Request $request, $id): JsonResponse
     {
-        $result = $this->generatedTaskService->updateStudentAnswer($request);
+        $result = $this->generatedTaskService->updateStudentAnswer($request, $id);
         return response()->json($result, 200);
     }
 

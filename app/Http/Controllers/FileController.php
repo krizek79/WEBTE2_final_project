@@ -40,6 +40,15 @@ class FileController extends Controller
     /**
      * @throws CustomException
      */
+    public function updateFileSetting(Request $request): JsonResponse
+    {
+        $result = $this->fileService->updateFileSetting($request);
+        return response()->json($result);
+    }
+
+    /**
+     * @throws CustomException
+     */
     public function updateFilePoints(Request $request): JsonResponse
     {
         $result = $this->fileService->updateFilePoints($request);

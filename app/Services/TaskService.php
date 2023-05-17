@@ -60,54 +60,56 @@ class TaskService
     {
         $now = Carbon::now();
 
-        $fileNames = $request->get('file');
+        // Get the data from the request
+        $requestData = $request->all();
 
-        $numTasks = $request->get('num', 3); // default to 3 if not provided
+        // Array to store all tasks
+        $allTasks = collect();
 
-        //$student = Auth::user(); 
+        foreach ($requestData as $data) {
+            $fileId = $data['file'];
+            $numTasks = $data['num'];
 
-        $generatedTaskIds = GeneratedTask::where('student_id', 1/*$student->id*/)->pluck('task_id')->toArray();
+            // Fetch the requested number of random tasks associated with the given file
+            $tasksQuery = Task::whereHas('file', function($query) use ($now, $fileId) {
+                $query->where('file_id', $fileId)
+                    ->where('is_accessible', true)
+                    ->where(function($query) use ($now) {
+                        $query->where(function($query) use ($now) {
+                            $query->where('accessible_from', '<=', $now)
+                                ->where('accessible_to', '>=', $now);
+                        })
+                        ->orWhereNull('accessible_from')
+                        ->orWhereNull('accessible_to');
+                    });
+            });
 
-        // Fetch the requested number of random tasks associated with accessible files and not in $generatedTaskIds
-        $tasksQuery = Task::whereHas('file', function($query) use ($now, $fileNames) {
-            $query->where('is_accessible', true)
-                ->where(function($query) use ($now) {
-                    $query->where(function($query) use ($now) {
-                        $query->where('accessible_from', '<=', $now)
-                            ->where('accessible_to', '>=', $now);
-                    })
-                    ->orWhereNull('accessible_from')
-                    ->orWhereNull('accessible_to');
-                });
-            
-            // If fileNames is provided, add it to the query
-            if($fileNames) {
-                if(!is_array($fileNames)){
-                    $fileNames = [$fileNames];
-                }
-                $query->whereIn('file_name', $fileNames);
+            $generatedTaskIds = GeneratedTask::where('student_id', 1/*$student->id*/)->pluck('task_id')->toArray();
+
+            $tasksQuery = $tasksQuery->whereNotIn('id', $generatedTaskIds);
+
+            $tasks = $tasksQuery->inRandomOrder()
+                ->take($numTasks)
+                ->get();
+
+            // Create a new GeneratedTask for each task and associate it with the current student
+            foreach ($tasks as $task) {
+                $generatedTask = new GeneratedTask;
+                $generatedTask->student_id = 1/*$student->id*/;
+                $generatedTask->task_id = $task->id;
+                $generatedTask->correctness = 'NOT_EVALUATED';
+                $generatedTask->save();
             }
-        })
-        ->whereNotIn('id', $generatedTaskIds);
-                        
-        $tasks = $tasksQuery->inRandomOrder()
-                    ->take($numTasks)
-                    ->get();
 
-        if ($tasks->isEmpty()) {
-            throw new CustomException("No accessible tasks found", 404);
+            // Append the tasks to the allTasks collection
+            $allTasks = $allTasks->concat($tasks);
         }
 
-        // Create a new GeneratedTask for each task and associate it with the current student
-        foreach ($tasks as $task) {
-            $generatedTask = new GeneratedTask;
-            $generatedTask->student_id = 1/*$student->id*/;
-            $generatedTask->task_id = $task->id;
-            $generatedTask->correctness = 'NOT_EVALUATED';
-            $generatedTask->save();
+        if ($allTasks->isEmpty()) {
+            throw new CustomException("No accessible tasks found in all requested files", 404);
         }
 
-        return ($tasks->map(function ($task) {
+        return ($allTasks->map(function ($task) {
             return [
                 'id' => $task->id,
                 'task' => $task->task,
@@ -118,4 +120,6 @@ class TaskService
             ];
         }));
     }
+
+
 }

@@ -79,17 +79,16 @@ class GeneratedTaskService
     /**
      * @throws CustomException
      */
-    public function updateStudentAnswer(Request $request)
+    public function updateStudentAnswer(Request $request, $id)
     {
         $studentId = 1; //$request->user();
 
         $request->validate([
-            'task_id' => 'required|integer',
             'student_answer' => 'required|string',
         ]);
 
         $generatedTask = GeneratedTask::where('student_id', $studentId)
-                                    ->where('task_id', $request->task_id)
+                                    ->where('task_id', $id)
                                     ->first();
 
         if (!$generatedTask) {
@@ -104,7 +103,7 @@ class GeneratedTaskService
 
         $results[] = [
             'student_id' => $studentId,
-            'task_id' => $request->task_id, // Assuming the student model has a name field
+            'task_id' => $id, // Assuming the student model has a name field
             'student_answer' => $request->student_answer,
             'correctness' => $generatedTask->correctness,
         ];

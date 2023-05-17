@@ -35,6 +35,7 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::group(['middleware' => [CheckRoleMiddleware::class . ':student']], function() {
         Route::get('/students', function () {
             return "Hello student";
+            //Route::get('/files', [FileController::class, 'index']);
         });
     });
 });
@@ -65,8 +66,9 @@ Route::get('/generatedtasks/results', [GeneratedTaskController::class, 'getStude
 Route::get('/generatedtasks/{id}', [GeneratedTaskController::class, 'getTasksByStudent']);
 
 //Saves and checks the student's answer
-Route::patch('/generatedtasks/answer', [GeneratedTaskController::class, 'updateStudentAnswer']);
+Route::patch('/generatedtasks/{id}/answer', [GeneratedTaskController::class, 'updateStudentAnswer']);
 
+Route::patch('/files/setting', [FileController::class, 'updateFileSetting']);
 Route::patch('/files/points', [FileController::class, 'updateFilePoints']);
 Route::patch('/files/{fileName}/access', [FileController::class, 'updateAccessibility']);
 Route::patch('/files/{fileName}/accesstime', [FileController::class, 'updateAccessibilityTime']);
