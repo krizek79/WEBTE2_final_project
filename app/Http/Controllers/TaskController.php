@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CustomException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Models\Task;
 use App\Services\TaskService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use App\Models\GeneratedTask;
 
 class TaskController extends Controller
 {
@@ -40,7 +37,7 @@ class TaskController extends Controller
     /**
      * @throws CustomException
      */
-    public function generateTasks(Request $request)
+    public function generateTasks(Request $request): JsonResponse
     {
         $result = $this->taskService->generateTasks($request);
         return response()->json($result);

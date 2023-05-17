@@ -66,8 +66,8 @@ class TaskService
         $allTasks = collect();
 
         foreach ($requestData as $data) {
-            $fileId = $data['file'];
-            $numTasks = $data['num'];
+            $fileId = $data['id'];
+            $numTasks = $data['tasksCount'];
 
             // Fetch the requested number of random tasks associated with the given file
             $tasksQuery = Task::whereHas('file', function($query) use ($now, $fileId) {
@@ -84,7 +84,6 @@ class TaskService
             });
 
             $studentId = $request->user()->id;
-            $studentId = 1;
 
             $generatedTaskIds = GeneratedTask::where('student_id', $studentId)->pluck('task_id')->toArray();
 

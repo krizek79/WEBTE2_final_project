@@ -26,21 +26,15 @@ Route::post("/register", [AuthenticationController::class, "register"]);
 Route::group(['middleware' => ['auth:api']], function() {
     //  Teacher
     Route::group(['middleware' => [CheckRoleMiddleware::class . ':teacher']], function() {
-        Route::get('/teachers', function () {
-            return "Hello teacher";
-        });
-        Route::prefix('teacher')->group(function () {
+        Route::prefix('teachers')->group(function () {
             //Return all files in database
             Route::get('/files', [FileController::class, 'index']);
-
             //Return task by id
             Route::get('/tasks/{id}', [TaskController::class, 'getTaskById']);
-
             //Return data for teacher's table
-            Route::get('/generatedtasks/results', [GeneratedTaskController::class, 'getStudentsResults']);
-
+            Route::get('/tasks/statistics', [GeneratedTaskController::class, 'getStudentsResults']);
             //Return list of student's tasks by student id, FOR TEACHER with solutions and student answers
-            Route::get('/generatedtasks/{id}', [GeneratedTaskController::class, 'getTasksByStudent']);
+            Route::get('/tasks/student/{id}', [GeneratedTaskController::class, 'getTasksByStudent']);
 
             Route::patch('/files/setting', [FileController::class, 'updateFileSetting']);
         });
@@ -48,26 +42,22 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     // Student
     Route::group(['middleware' => [CheckRoleMiddleware::class . ':student']], function() {
-        Route::get('/students', function () {
-            return "Hello student";
-        });
         Route::prefix('students')->group(function () {
-            //Return files that are accessible to the student
+            //  Return files that are accessible to the student
             Route::get('/files/accessible', [FileController::class, 'getAccessibleFiles']);
-
-            //Generates and returns for the student tasks that are accessible to him and at the same time adds a record to the table generated_tasks
-            Route::get('/tasks/generate', [TaskController::class, 'generateTasks']);
-
-            //Return task by id
+            //  Return task by id
             Route::get('/tasks/{id}', [TaskController::class, 'getTaskById']);
+            //  Return list of student's tasks for "example list", logged in student
+            Route::get('/tasks', [GeneratedTaskController::class, 'getTaskListByStudent']);
 
-            //Return list of student's tasks for "example list", logged in student
-            Route::get('/generatedtasks/examplelist', [GeneratedTaskController::class, 'getExampleList']);
+            //  Generates and returns for the student tasks that are accessible
+            //  to him and at the same time adds a record to the table generated_tasks
+            Route::post('/tasks/generate', [TaskController::class, 'generateTasks']);
 
-            //Saves and checks the student's answer
-            Route::patch('/generatedtasks/{id}/answer', [GeneratedTaskController::class, 'updateStudentAnswer']);
+            //  Saves and checks the student's answer
+            Route::patch('/tasks/{id}/submit', [GeneratedTaskController::class, 'updateStudentAnswer']);
         });
-        
+
     });
 });
 

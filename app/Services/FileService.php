@@ -6,6 +6,7 @@ use App\Exceptions\CustomException;
 use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 
 class FileService
@@ -44,22 +45,23 @@ class FileService
 
     /**
      * @throws CustomException
+     * @throws ValidationException
      */
-    public function updateFileSetting(Request $request)
+    public function updateFileSetting(Request $request): array
     {
         $fileDataArray = $request->all();
 
         $updatedFiles = [];
-        
+
         foreach ($fileDataArray as $fileData) {
             $validatedData = Validator::make($fileData, [
-                'file_id' => 'required|integer',
+                'id' => 'required|integer',
                 'points' => 'required|integer',
-                'accessible_from' => 'date|nullable',
-                'accessible_to' => 'date|nullable',
+                'accessibleFrom' => 'date|nullable',
+                'accessibleTo' => 'date|nullable',
             ])->validate();
-            
-            $file = File::find($validatedData['file_id']);
+
+            $file = File::find($validatedData['id']);
 
             if (!$file) {
                 throw new CustomException("No file found with the specified ID", 404);
@@ -67,12 +69,12 @@ class FileService
 
             $file->points = $validatedData['points'];
             $file->is_accessible = true;
-            $file->accessible_from = $validatedData['accessible_from'];
-            $file->accessible_to = $validatedData['accessible_to'];
+            $file->accessible_from = $validatedData['accessibleFrom'];
+            $file->accessible_to = $validatedData['accessibleTo'];
 
             $file->save();
 
-            array_push($updatedFiles, $file);
+            $updatedFiles[] = $file;
         }
 
         return $updatedFiles;

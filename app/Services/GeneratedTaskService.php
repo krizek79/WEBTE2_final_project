@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\CustomException;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use App\Models\File;
 use App\Models\GeneratedTask;
@@ -17,14 +18,16 @@ class GeneratedTaskService
      */
     public function getTasksByStudent($id)
     {
-        $generatedTasks = GeneratedTask::where('student_id', $id)
-                                ->with(['task.file'])
-                                ->get();
+        $generatedTasks = [];
 
-        if ($generatedTasks->isEmpty()) {
-            throw new CustomException("No generated tasks found for this student", 404);
+        try {
+            $generatedTasks = GeneratedTask::where('student_id', $id)
+                ->with(['task.file'])
+                ->get();
+        } catch (Exception $e) {
+            return $generatedTasks;
         }
-        
+
         return ($generatedTasks->map(function ($generatedTask) {
             return [
                 //'id' => $generatedTask->id,
@@ -33,22 +36,26 @@ class GeneratedTaskService
                 'solution' => $generatedTask->task->solution,
                 'student_answer' => $generatedTask->student_answer,
                 'correctness' => $generatedTask->correctness,
-                'points' => $generatedTask->task->file->points, 
+                'points' => $generatedTask->task->file->points,
                 'file_name' => $generatedTask->task->file->file_name,
             ];
         }));
     }
 
-    public function getExampleList($request)
+    /**
+     * @throws CustomException
+     */
+    public function getTaskListByStudent($request)
     {
         $studentId = $request->user()->id;
+        $generatedTasks = [];
 
-        $generatedTasks = GeneratedTask::where('student_id', $studentId)
-                                ->with(['task.file'])
-                                ->get();
-
-        if ($generatedTasks->isEmpty()) {
-            throw new CustomException("No generated tasks found for this student", 404);
+        try {
+            $generatedTasks = GeneratedTask::where('student_id', $studentId)
+                ->with(['task.file'])
+                ->get();
+        } catch (Exception $e) {
+            return $generatedTasks;
         }
 
         return ($generatedTasks->map(function ($generatedTask) {
@@ -65,7 +72,7 @@ class GeneratedTaskService
      */
     public function updateStudentAnswer(Request $request, $id)
     {
-        //$studentId = 1; //$request->user();  
+        //$studentId = 1; //$request->user();
         $studentId = $request->user()->id;
 
         $request->validate([
@@ -99,14 +106,14 @@ class GeneratedTaskService
     /**
      * @throws CustomException
      */
-    public function getStudentsResults()
+    public function getStudentsResults(): array
     {
-        $students = GeneratedTask::select('student_id')
-                        ->with('student', 'task.file')
-                        ->groupBy('student_id')
-                        ->get();
-
         $results = [];
+
+        $students = GeneratedTask::select('student_id')
+            ->with('student', 'task.file')
+            ->groupBy('student_id')
+            ->get();
 
         foreach ($students as $student) {
             $tasks = $student->student->generatedTasks;
@@ -120,20 +127,19 @@ class GeneratedTaskService
             });
 
             $results[] = [
-                'student_id' => $student->student_id,
-                'first_name' => $student->student->first_name, // Assuming the student model has a name field
-                'last_name' => $student->student->last_name,
-                'total_tasks' => $totalTasks,
-                'solved_tasks' => $solvedTasks,
-                'total_points' => $totalPoints,
+                'studentId' => $student->student_id,
+                'firstName' => $student->student->first_name, // Assuming the student model has a name field
+                'lastName' => $student->student->last_name,
+                'totalTasks' => $totalTasks,
+                'solvedTasks' => $solvedTasks,
+                'totalPoints' => $totalPoints,
             ];
         }
 
         return $results;
-
     }
 
-    private function compareStudentAnswer($solution, $studentAnswer)
+    private function compareStudentAnswer($solution, $studentAnswer): string
     {
 
         if ($solution === $studentAnswer) {
@@ -142,5 +148,5 @@ class GeneratedTaskService
 
         return 'WRONG';
     }
-    
+
 }

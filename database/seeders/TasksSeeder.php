@@ -30,16 +30,16 @@ class TasksSeeder extends Seeder
             $fileEntry = File::create([
                 'file_name' => $fileName,
                 'points' => 1,
-                'is_accessible' => true,
+                'is_accessible' => false,
             ]);
 
             // Read the file
             $data = file_get_contents($file);
 
             // Use regex to extract tasks, solutions, and images
-            preg_match_all('/\\\\begin\{task\}(.*?)\\\\end\{task\}/s', $data, $tasks);
-            preg_match_all('/\\\\begin\{solution\}(.*?)\\\\end\{solution\}/s', $data, $solutions);
-            preg_match_all('/\\\\includegraphics\{(.*?)\}/s', $data, $images);
+            preg_match_all('/\\\\begin\{task}(.*?)\\\\end\{task}/s', $data, $tasks);
+            preg_match_all('/\\\\begin\{solution}(.*?)\\\\end\{solution}/s', $data, $solutions);
+            preg_match_all('/\\\\includegraphics\{(.*?)}/s', $data, $images);
 
             // Check if there are any images found
             if (!empty($images[1])) {

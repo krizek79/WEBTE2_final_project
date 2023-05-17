@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CustomException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -39,9 +40,9 @@ class GeneratedTaskController extends Controller
     /**
      * @throws CustomException
      */
-    public function getExampleList(Request $request): JsonResponse
+    public function getTaskListByStudent(Request $request): JsonResponse
     {
-        $result = $this->generatedTaskService->getExampleList($request);
+        $result = $this->generatedTaskService->getTaskListByStudent($request);
         return response()->json($result, 200);
     }
 
@@ -52,7 +53,7 @@ class GeneratedTaskController extends Controller
     public function getStudentsResults(): JsonResponse
     {
         $result = $this->generatedTaskService->getStudentsResults();
-        return response()->json($result, 200);
+        return response()->json($result);
     }
 
 }

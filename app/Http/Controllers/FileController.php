@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CustomException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Models\File;
 use App\Services\FileService;
+use Illuminate\Validation\ValidationException;
 
 class FileController extends Controller
 {
@@ -39,6 +40,7 @@ class FileController extends Controller
 
     /**
      * @throws CustomException
+     * @throws ValidationException
      */
     public function updateFileSetting(Request $request): JsonResponse
     {
