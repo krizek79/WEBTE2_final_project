@@ -22,7 +22,7 @@ class TaskController extends Controller
     public function getAllTasks(): JsonResponse
     {
         $result = $this->taskService->getAllTasks();
-        return response()->json($result);
+        return response()->json($result, 200);
     }
 
     /**
@@ -31,7 +31,7 @@ class TaskController extends Controller
     public function getTaskById($id): JsonResponse
     {
         $result = $this->taskService->getTaskById($id);
-        return response()->json($result);
+        return response()->json($result, 200);
     }
 
     /**
@@ -40,6 +40,6 @@ class TaskController extends Controller
     public function generateTasks(Request $request): JsonResponse
     {
         $result = $this->taskService->generateTasks($request);
-        return response()->json($result);
+        return response()->json($result, 200);
     }
 }

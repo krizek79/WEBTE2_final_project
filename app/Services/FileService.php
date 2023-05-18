@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Exceptions\CustomException;
 use App\Models\File;
 use Illuminate\Http\Request;
@@ -17,13 +18,19 @@ class FileService
      */
     public function getFiles()
     {
-        $files = File::select('id', 'file_name', 'points')->distinct()->get();
+        try{
+            $files = File::select('id', 'file_name', 'points')->distinct()->get();
 
-        if ($files->isEmpty()) {
-            throw new CustomException("No files found", 404);
+            if ($files->isEmpty()) {
+                throw new CustomException("No files found", 404);
+            }
+
+            return $files;
+        } catch (CustomException $e) {
+            throw $e; 
+        } catch (Exception $e) {
+            throw new CustomException("An error occurred while trying to retrieve all files: " . $e->getMessage(), 500);
         }
-
-        return $files;
     }
 
     /**
@@ -31,16 +38,24 @@ class FileService
      */
     public function getAccessibleFiles()
     {
-        $files = File::where('is_accessible', true)
-            ->select('id', 'file_name')
-            ->withCount('tasks')  // Add a tasks_count column to the results
-            ->get();
+        try{
+            $files = File::where('is_accessible', true)
+                ->select('id', 'file_name')
+                ->withCount('tasks')  // Add a tasks_count column to the results
+                ->get();
 
-        if ($files->isEmpty()) {
-            throw new CustomException("No accessible files found", 404);
+            if ($files->isEmpty()) {
+                throw new CustomException("No accessible files found", 404);
+            }
+
+            return $files;
+
+        } catch (CustomException $e) {
+            throw $e; 
+        } catch (Exception $e) {
+            throw new CustomException("An error occurred while trying to retrieve accessible files: " . $e->getMessage(), 500);
         }
 
-        return $files;
     }
 
     /**
@@ -49,34 +64,58 @@ class FileService
      */
     public function updateFileSetting(Request $request): array
     {
-        $fileDataArray = $request->all();
+        try{
+            $fileDataArray = $request->all();
 
-        $updatedFiles = [];
+            $updatedFiles = [];
 
-        foreach ($fileDataArray as $fileData) {
-            $validatedData = Validator::make($fileData, [
-                'id' => 'required|integer',
-                'points' => 'required|integer',
-                'accessibleFrom' => 'date|nullable',
-                'accessibleTo' => 'date|nullable',
-            ])->validate();
+            foreach ($fileDataArray as $fileData) {
+                $validator = Validator::make($fileData, [
+                    'id' => 'required|integer',
+                    'points' => 'required|integer',
+                    'isAccessible' => 'required|boolean',
+                    'accessibleFrom' => 'date|nullable',
+                    'accessibleTo' => 'date|nullable',
+                ]);
 
-            $file = File::find($validatedData['id']);
+                if($validator->fails()) {
+                    $errorMessage = $validator->errors()->first();
+                    throw new CustomException("Validation error: " . $errorMessage, 400);
+                }
 
-            if (!$file) {
-                throw new CustomException("No file found with the specified ID", 404);
+                $validatedData = $validator->validated();
+
+                $file = File::find($validatedData['id']);
+
+                if (!$file) {
+                    throw new CustomException("No file found with the specified id: " . $validatedData['id'], 404);
+                }
+
+                $file->points = $validatedData['points'];
+                $file->is_accessible = $validatedData['isAccessible'];
+                if(isset($validatedData['accessibleFrom']) && !is_null($validatedData['accessibleFrom'])) {
+                    $file->accessible_from = $validatedData['accessibleFrom'];
+                }else{
+                    $file->accessible_from = null;
+                }
+        
+                if(isset($validatedData['accessibleTo']) && !is_null($validatedData['accessibleTo'])){
+                    $file->accessible_to = $validatedData['accessibleTo'];
+                }else{
+                    $file->accessible_to = null;
+                }
+                
+                $file->save();
+
+                $updatedFiles[] = $file;
             }
 
-            $file->points = $validatedData['points'];
-            $file->is_accessible = true;
-            $file->accessible_from = $validatedData['accessibleFrom'];
-            $file->accessible_to = $validatedData['accessibleTo'];
+            return $updatedFiles;
 
-            $file->save();
-
-            $updatedFiles[] = $file;
+        } catch (CustomException $e) {
+            throw $e; 
+        } catch (Exception $e) {
+            throw new CustomException("An error occurred while trying to update file settings: " . $e->getMessage(), 500);
         }
-
-        return $updatedFiles;
     }
 }

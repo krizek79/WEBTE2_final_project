@@ -53,7 +53,7 @@ class GeneratedTaskController extends Controller
     public function getStudentsResults(): JsonResponse
     {
         $result = $this->generatedTaskService->getStudentsResults();
-        return response()->json($result);
+        return response()->json($result, 200);
     }
 
 }
