@@ -27,7 +27,7 @@ class FileService
 
             return $files;
         } catch (CustomException $e) {
-            throw $e; 
+            throw $e;
         } catch (Exception $e) {
             throw new CustomException("An error occurred while trying to retrieve all files: " . $e->getMessage(), 500);
         }
@@ -51,7 +51,7 @@ class FileService
             return $files;
 
         } catch (CustomException $e) {
-            throw $e; 
+            throw $e;
         } catch (Exception $e) {
             throw new CustomException("An error occurred while trying to retrieve accessible files: " . $e->getMessage(), 500);
         }
@@ -73,7 +73,6 @@ class FileService
                 $validator = Validator::make($fileData, [
                     'id' => 'required|integer',
                     'points' => 'required|integer',
-                    'isAccessible' => 'required|boolean',
                     'accessibleFrom' => 'date|nullable',
                     'accessibleTo' => 'date|nullable',
                 ]);
@@ -92,19 +91,19 @@ class FileService
                 }
 
                 $file->points = $validatedData['points'];
-                $file->is_accessible = $validatedData['isAccessible'];
+                $file->is_accessible = true;
                 if(isset($validatedData['accessibleFrom']) && !is_null($validatedData['accessibleFrom'])) {
                     $file->accessible_from = $validatedData['accessibleFrom'];
                 }else{
                     $file->accessible_from = null;
                 }
-        
+
                 if(isset($validatedData['accessibleTo']) && !is_null($validatedData['accessibleTo'])){
                     $file->accessible_to = $validatedData['accessibleTo'];
                 }else{
                     $file->accessible_to = null;
                 }
-                
+
                 $file->save();
 
                 $updatedFiles[] = $file;
@@ -113,7 +112,7 @@ class FileService
             return $updatedFiles;
 
         } catch (CustomException $e) {
-            throw $e; 
+            throw $e;
         } catch (Exception $e) {
             throw new CustomException("An error occurred while trying to update file settings: " . $e->getMessage(), 500);
         }
